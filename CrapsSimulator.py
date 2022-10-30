@@ -24,6 +24,16 @@ class Player(Table):
             except ValueError:
                 print("Please enter a valid integer value for your bankroll (e.g., 100)")
 
+#BETS Class handles player betting and win/loss logic
+class Bets(Player):
+    def __init__(self):
+        super().__init__()
+        # self.possibleBets = {"pass_line": 0, "do_not_pass": 0, "odds_bet": 0}
+        # self.currentBet = possibleBets[0]
+
+    def insufficient_funds(self):
+        pass
+
 def ErrorHandler(func):
     def checkInput(x):
         if not isinstance(x, int):

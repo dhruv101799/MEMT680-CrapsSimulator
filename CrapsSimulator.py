@@ -28,12 +28,14 @@ class Player(Table):
 class Bets(Player):
     def __init__(self):
         super().__init__()
-        # self.possibleBets = {"pass_line": 0, "do_not_pass": 0, "odds_bet": 0}
-        # self.currentBet = possibleBets[0]
+        self.possibleBets = {"no_bet": 0, "pass_line": 0, "do_not_pass": 0, "odds_bet": 0}
+        self.currentBet = possibleBets["no_bet"]
+        
 
     def insufficient_funds(self):
         pass
 
+#Decorator to handle input type errors (IN PROGRESS)
 def ErrorHandler(func):
     def checkInput(x):
         if not isinstance(x, int):

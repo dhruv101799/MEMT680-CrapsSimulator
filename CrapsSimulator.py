@@ -1,3 +1,19 @@
+#Error handler decorator to validate input
+def ErrorHandler(func):
+    def Inner_Function(*args, **kwargs):
+        try:
+            func(*args, **kwargs)
+            return True
+        except:
+            print("A valid integer input was not provided. Please try again.")
+            return False
+    return Inner_Function
+
+#Check if input is integer
+@ErrorHandler
+def checkInt(x):
+    return int(x)
+
 #DICE Class that holds current value of 2 dice
 class Dice:
     def __init__(self):
@@ -16,13 +32,9 @@ class Player(Table):
     def __init__(self):
         super().__init__()
         self.name = input("Enter player name: ") #Request and save player name
-        while True:
-            try:
-                self.bankroll = input("Enter your bankroll: ") #Get amount of money player has on table
-                if not isinstance(self.bankroll, int):
-                    raise ValueError
-            except ValueError:
-                print("Please enter a valid integer value for your bankroll (e.g., 100)")
+        self.bankroll = input("Enter your bankroll: ") #Get amount of money player has on table
+        while not checkInt(self.bankroll): #Repeatedly ask for bankroll until valid input is given
+            self.bankroll = input("Enter your bankroll: ") 
 
 #BETS Class handles player betting and win/loss logic
 class Bets(Player):
@@ -35,11 +47,7 @@ class Bets(Player):
     def insufficient_funds(self):
         pass
 
-#Decorator to handle input type errors (IN PROGRESS)
-def ErrorHandler(func):
-    def checkInput(x):
-        if not isinstance(x, int):
-            raise Exception("Input must be a valid integer value...")
-        userInput = func(x)
-        return userInput
-    return checkInput
+
+#Test player class
+player1 = Player()
+print(f"{player1.name} has a bankroll of ${player1.bankroll}.")

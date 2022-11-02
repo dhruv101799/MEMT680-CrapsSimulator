@@ -45,13 +45,13 @@ class Player(Table):
 class Bets(Player):
     def __init__(self):
         super().__init__()
-        self.possibleBets = ["no bet", "pass line", "do not pass", "odds bet"] # Define possible bets
-        self.activeBets = {"no bet": 0, "pass line": 0, "do not pass": 0, "odds bet": 0} #Initizalize active bets to 0
+        self.possibleBets = ["No Bet", "Pass Line", "Do Not Pass", "Odds Bet"] # Define possible bets
+        self.activeBets = {"No Bet": 0, "Pass Line": 0, "Do Not Pass": 0, "Odds Bet": 0} #Initizalize active bets to 0
         self.betAmount = 0 #Initialize bet amount (default = 0)
 
     def check_funds(self, betAmount:int) -> int:
-        while not checkInt(betAmount): #Repeatedly ask for bet amount until valid integer input is given
-            betAmount = input("Enter a valid integer bet amount: ")
+        # while not checkInt(betAmount): #Repeatedly ask for bet amount until valid integer input is given
+        #     betAmount = input("Enter a valid integer bet amount: ")
         betAmount = int(betAmount)
         
         while True:
@@ -100,16 +100,22 @@ class Bets(Player):
             #Process chosen bet
             if betType == "a": # Pass line bet
                 print(f"{self.name} placed a valid bet on the pass line")
+                betLocation = "Pass Line"
+                self.activeBets[betLocation] = self.ingestBet(betLocation) #Get bet amount
             else: # Do not pass line bet
                 print(f"{self.name} placed a valid bet on the do not pass line")
+                betLocation = "Do Not Pass"
+                self.activeBets[betLocation] = self.ingestBet(betLocation) #Get bet amount
                 
 
         else: #Player does not wish to place a bet at this time
             print(f"{self.name} does NOT place bet")
 
-    def ingestBet(self) -> int: 
-        #TODO: method to return bet amount
-        pass
+    def ingestBet(self, betLocation) -> int: 
+        betAmount = input(f"{self.name}, please enter a valid bet amount for the {betLocation}: ")
+        while betAmount == 0 or not checkInt(betAmount): #Repeatedly ask for bet amount until valid non-zero integer input is given
+            betAmount = input(f"Enter a valid non-zero integer bet amount for {betLocation}: ")
+        return int(betAmount)
 
 player1 = Bets()
 print(f"{player1.name} has a bankroll of ${player1.bankroll}.")

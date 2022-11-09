@@ -24,12 +24,15 @@ class Dice:
     def roll(self):
         self.diceA = np.random.randint(1, 7) #Generate random number between 1-6
         self.diceB = np.random.randint(1, 7) #Generate random number between 1-6
+        return self.diceA + self.diceB
 
 #TABLE Class defines if point has been set
 class Table(Dice):
     def __init__(self):
         super().__init__() #Enables reference to parent class without needing to explicitly call them
+        self.comeout = True #Initialize first roll as comeout roll
         self.point = False #Initialize set point to false
+        self.point_value = 0 # Initizalize point value to 0
 
 #PLAYER Class defines properties of player
 class Player(Table):
@@ -40,6 +43,7 @@ class Player(Table):
         while not checkInt(self.bankroll): #Repeatedly ask for bankroll until valid input is given
             self.bankroll = input("Enter your bankroll: ")
         self.bankroll = int(self.bankroll)
+        self.isShooter = False # Initialize player to not be shooter until non-zero bets are placed
 
 #BETS Class handles player betting and win/loss logic
 class Bets(Player):
@@ -127,11 +131,54 @@ class Bets(Player):
             print(f"{key}\t${value}")
     
     #Method to process bet wins/losses
-    def processBets(self):
+    def processBets(self, roll_outcome):
         #TODO: After bets are placed and die are rolled, process bets (win/loss)
         #TODO: Print out bets won
         #TODO: Print out bets lost
         #TODO: Print bankroll at end of round after wins/losses
+    
+        print(f"You rolled a: {roll_outcome}")
+        
+        if not self.point: # Comeout roll
+            set_point = [4, 5, 6, 8, 9, 10]
+            pass_win = [7, 11]
+            pass_lose = [2, 3, 12]
+
+            if roll_outcome in set_point:
+                self.point = True # Set the point
+                self.point_value = roll_outcome
+                print(f"The point has been set to be: {self.point_value}\n")
+                self.betting_turn() # Check if user wants to place do not pass bets
+                
+                #Game changes to continuously roll until player "sevens out" or rolls point value
+                print("ROLLING DIE...")
+                roll_outcome = self.roll()
+                print(f"You rolled a: {roll_outcome}")
+                while roll_outcome != self.point_value: # Continously roll die until point-value is reached or "seven out"
+                    if roll_outcome == 7: # Player loses bet by "sevening out"
+                        self.Bet_loser() # Process lost bets
+                    else:
+                        print(f"You rolled a: {roll_outcome}") # Output new roll outcome
+                        print("ROLLING DIE...") 
+                        roll_outcome = self.roll() # Roll die again
+                
+                #Player wins by hitting point marker
+                self.point = False # Remove point from table
+                self.point_value = 0 # Reset point value to 0
+                self.Bet_winner() # Process winning bets
+
+
+            elif roll_outcome in pass_win: # User wins pass line bet
+                self.point = False
+                self.Bet_winner()
+            else: # User loses pass line bet
+                self.point = False
+                self.Bet_loser()
+
+        else: # No longer a comeout roll
+            pass
+
+
         pass
 
     #Check if bets are active, roll die, evaluate payouts
@@ -139,6 +186,20 @@ class Bets(Player):
         #TODO: Check if there are any active non-zero bets
         #TODO: If bets are active, roll die
         #TODO: Evaluate payouts for active bets after roll outcome
+        self.isShooter = False
+
+        for bet, amount in self.activeBets.items():
+            if amount != 0: # Check if there are non-zero bets
+                self.isShooter = True # Bet has been placed and shooter can roll die
+                print("ROLLING DIE...")
+                roll_outcome = self.roll() # Generate random values for rolled die
+                self.processBets(roll_outcome) # Process wins/losses
+                break
+        
+        if not self.isShooter: # No bets are active and shooter cannot roll die
+            print("There are no active bets. Please place a bet to roll die.")
+            self.betting_turn() # Get player bets
+        
         pass
 
     #Process losing bets

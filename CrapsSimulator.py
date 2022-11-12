@@ -55,8 +55,6 @@ class Bets(Player):
         self.betAmount = 0 #Initialize bet amount (default = 0)
 
     def check_funds(self, betAmount:int) -> int:
-        # while not checkInt(betAmount): #Repeatedly ask for bet amount until valid integer input is given
-        #     betAmount = input("Enter a valid integer bet amount: ")
         betAmount = int(betAmount)
         
         while True:
@@ -126,13 +124,23 @@ class Bets(Player):
 
     #Get bet amount from user, verify non-zero integer input, and return
     def ingestBet(self, betLocation) -> int:
-        betAmount = input(f"{self.name}, please enter a valid bet amount for the {betLocation}: ")
-        while betAmount == 0 or not checkInt(betAmount): #Repeatedly ask for bet amount until valid non-zero integer input is given
-            betAmount = input(f"Enter a valid non-zero integer bet amount for {betLocation}: ")
-        
-        betAmount = self.check_funds(betAmount) #Check if requested bet amount is possible with current funds
+        if betLocation == "Odds Bet": #Maximum bet amount is restricted by bankroll and point value
+            betAmount = input(f"{self.name}, please enter a valid bet amount for the {betLocation} \n(MAX ODDS BET = {self.maxOddsBet}): ")
+            while betAmount == 0 or not checkInt(betAmount) or int(betAmount) > self.maxOddsBet: #Repeatedly ask for bet amount until valid non-zero integer input is given
+                betAmount = input(f"Enter a valid non-zero integer bet below the max limit for {betLocation}: ")
+            
+            betAmount = self.check_funds(betAmount) #Check if requested bet amount is possible with current funds
+            
+            return int(betAmount)
 
-        return int(betAmount)
+        else: #Standard pass/do not pass bet is being placed
+            betAmount = input(f"{self.name}, please enter a valid bet amount for the {betLocation}: ")
+            while betAmount == 0 or not checkInt(betAmount): #Repeatedly ask for bet amount until valid non-zero integer input is given
+                betAmount = input(f"Enter a valid non-zero integer bet amount for {betLocation}: ")
+            
+            betAmount = self.check_funds(betAmount) #Check if requested bet amount is possible with current funds
+
+            return int(betAmount)
 
     #Method to print active bets
     def printActiveBets(self): 
@@ -253,7 +261,11 @@ class Bets(Player):
         print(f"You won on {betType} with a bet of {self.activeBets[betType]}")
 
         self.Payout() # Evaluate winnings
-        self.activeBets["Odds Bet"] = 0 # Set odds bet to 0 after payout has been made
+        if self.activeBets["Odds Bet"] != 0: # Odds bet was placed
+            self.activeBets["Odds Bet"] = 0 # Set odds bet to 0 after payout has been made
+            self.activeBets["Pass Line"] = 0 # Set initial pass line bet to 0
+            self.activeBets["Do Not Pass"] = 0 # Set initial do not pass line bet to 0
+        
         self.point = False # Remove point from table
         self.point_value = 0 # Initialize point value to 0 for next round
 
@@ -270,8 +282,27 @@ class Bets(Player):
         #TODO: Print maximum bet value and current bankroll for player
         #TODO: Place Odds bet using 'ingestBet()' method
         #TODO: Adjust bankroll after Odds bet is placed
+        oddsBetMultiples = {3:[4, 10], 
+                            4:[5, 9],
+                            5:[6, 8]}
         if self.point and self.activeBets["Pass Line"] != 0:
-            print("Odds bet is being placed...")
+            for multiple, point_val in oddsBetMultiples.items():
+                if self.point_value in point_val:
+                    odds_multiple = multiple # Define odds bet multiple based on point value
+                    self.maxOddsBet = self.activeBets["Pass Line"] * odds_multiple # Define maximum odds bet amount
+
+                    print(f"The point is set to: {self.point_value}")
+                    print(f"Maximum odds bet that can be placed is: ${self.maxOddsBet}")
+                    break
+
+            # Place odds bet using defined values
+            betLocation = "Odds Bet"
+            self.activeBets[betLocation] = self.activeBets[betLocation] + self.ingestBet(betLocation) #Get bet amount
+            self.bankroll = self.bankroll - self.activeBets[betLocation]
+            print(f"An odds bet of ${self.activeBets[betLocation]} was placed by {self.name}.")
+            self.printActiveBets()
+            self.betting_turn()
+                    
         else:
             if self.activeBets["Pass Line"] == 0:
                 print("A pass line bet has not been placed, so an odds bet cannot be made.")
@@ -284,7 +315,8 @@ class Bets(Player):
         #TODO: Check if there are active bets
         #TODO: If not active bets, prompt user to either make a bet or walk away with current bankroll
         #TODO: If bets are active, prompt user to roll dice again
-        print("Processing payouts")
+        print("PROCESSING PAYOUTS...")
+
         pass
 
 

@@ -58,38 +58,41 @@ class Bets(Player):
         betAmount = int(betAmount)
         
         while True:
-            if int(betAmount) > self.bankroll:
+            if int(betAmount) > self.bankroll: # Determine if satisfactory funds are available
+                # Request valid fund amount based on bankroll
                 betAmount = input(f"{self.name}, you have insufficient funds for a bet of ${betAmount}.\nYour bankroll is: ${self.bankroll}\nPlease enter a valid integer bet amount: ")
                 
                 while not checkInt(betAmount): #Repeatedly ask for bet amount until valid integer input is given
                     betAmount = input("Enter a valid integer bet amount: ")
             else:
-                return int(betAmount)
+                return int(betAmount) # Return verified bet amount
         
 
     def pass_line_bet(self):
-        if not self.point:
+        if not self.point: # If the point is not established
             betLocation = "Pass Line"
             self.activeBets[betLocation] = self.activeBets[betLocation] + self.ingestBet(betLocation) #Get bet amount
-            self.bankroll = self.bankroll - self.activeBets['Pass Line']
-            print(f"A bet on the pass line of ${self.activeBets['Pass Line']} was placed by {self.name}.")
-            self.printActiveBets()
-            self.betting_turn()
-        else:
+            self.bankroll = self.bankroll - self.activeBets['Pass Line'] # Adjust bankroll
+            print(f"A bet on the {betLocation} of ${self.activeBets['Pass Line']} was placed by {self.name}.")
+            self.printActiveBets() # Output current bets
+            self.betting_turn() # Ask user if they want to place more bets
+        else: # Point has been established
             print("The point has been set and a pass line bet cannot be placed.")
 
     def do_not_pass_bet(self):
-        if not self.point:
+        if not self.point: # If the point is not established
             betLocation = "Do Not Pass"
             self.activeBets[betLocation] = self.activeBets[betLocation] + self.ingestBet(betLocation) #Get bet amount
-            self.bankroll = self.bankroll - self.activeBets['Do Not Pass']
+            self.bankroll = self.bankroll - self.activeBets['Do Not Pass'] # Adjust bankroll
             print(f"A bet on the do not pass line of ${self.activeBets['Do Not Pass']} was placed by {self.name}.")
-            self.printActiveBets()
-            self.betting_turn()
-        else:
+            self.printActiveBets() # Output current bets
+            self.betting_turn() # Ask user if the ywant to place more bets
+        else: # Point has been established
             print("The point has been set and a do not pass line bet cannot be placed.")
     
+    # Method to handle betting
     def betting_turn(self):
+        # Process user input
         bet_decision = input(f"{self.name}, would you like to place any bets (y/n)? ")
         valid_decisions = ["y", "yes", "n", "no"]
         valid_betTypes = ["a", "pass line", "b", "do not pass line", "c", "odds bet"]
@@ -107,20 +110,20 @@ class Bets(Player):
             #Process chosen bet
             if betType == "a": # Pass line bet
                 print("\nPASS LINE BET")
-                self.pass_line_bet()
-                self.Shooter()
+                self.pass_line_bet() # Create pass line bet
+                self.Shooter() # Call shooter method to roll die
             elif betType == "b": # Do not pass line bet
                 print("\nDO NOT PASS BET")
-                self.do_not_pass_bet()
-                self.Shooter()
+                self.do_not_pass_bet() # Create do not pass bet
+                self.Shooter() # Call shooter method to roll die
             else: # Odds bet
                 print("\nODDS BET")
-                self.Odds()
-                self.Shooter()
+                self.Odds() # Create odds bet
+                self.Shooter() # Call shooter method to roll die
 
         else: #Player does not wish to place a bet at this time
             print(f"\n{self.name} chose not to place a bet this round")
-            self.Shooter()
+            self.Shooter() # Call shooter methdo to roll die
 
     #Get bet amount from user, verify non-zero integer input, and return
     def ingestBet(self, betLocation) -> int:
@@ -144,7 +147,6 @@ class Bets(Player):
 
     #Method to print active bets
     def printActiveBets(self): 
-        #TODO: Print out active bets
         print("\n********ACTIVE BETS********\n")
         print("Bet Type\tBet Amount\n")
         for key,value in self.activeBets.items():
@@ -156,13 +158,11 @@ class Bets(Player):
 
     #Method to process bet wins/losses
     def processBets(self):
-        #TODO: After bets are placed and die are rolled, process bets (win/loss)
-        #TODO: Print out bets won
-        #TODO: Print out bets lost
-        #TODO: Print bankroll at end of round after wins/losses
         
         if not self.point: # Comeout roll
             print(f"You rolled a: {self.roll_outcome}")
+            
+            # Comeout roll classifications:
             set_point = [4, 5, 6, 8, 9, 10]
             pass_win = [7, 11]
             do_not_pass_win = [2, 3, 12]
@@ -175,11 +175,11 @@ class Bets(Player):
 
             elif self.roll_outcome in pass_win and self.activeBets["Pass Line"] != 0: # User wins pass line bet on comeout roll
                 self.point = False # Point is not on table
-                self.Bet_winner(betType="Pass Line")
+                self.Bet_winner(betType="Pass Line") # Process win for pass line bet
 
             elif self.roll_outcome in do_not_pass_win and self.activeBets["Do Not Pass"] != 0: # User wins do not pass line bet on comeout roll
                 self.point = False # Point is not on table
-                self.Bet_winner(betType="Do Not Pass")
+                self.Bet_winner(betType="Do Not Pass") # Process win for do not pass bet
 
             else: # User loses pass line bet
                 self.point = False # Point is not on table
@@ -200,15 +200,12 @@ class Bets(Player):
                 self.point_value = 0 # Reset point value to 0
             else:
                 print("\nYou missed the point, roll again!\n")
-                self.Shooter()
+                self.Shooter() # Roll die again
                 
 
     #Check if bets are active, roll die, evaluate payouts
     def Shooter(self):
-        #TODO: Check if there are any active non-zero bets
-        #TODO: If bets are active, roll die
-        #TODO: Evaluate payouts for active bets after roll outcome
-        self.isShooter = False
+        self.isShooter = False # Determine if player is shooter (initialize to false)
 
         for bet, amount in self.activeBets.items():
             if amount != 0: # Check if there are non-zero bets
@@ -238,28 +235,22 @@ class Bets(Player):
 
     #Process losing bets
     def Bet_loser(self):
-        #TODO: If bet is lost, print out bet location and amount lost
-        #TODO: Call 'bets_lost()' method
         print("\nYou lost...")
-        print(f"The roll was a {self.roll_outcome}")
-        if self.point:
+        print(f"The roll was a {self.roll_outcome}") # Output roll that lost bet(s)
+        if self.point: # If point was set
             print(f"The point was set to {self.point_value}")
-        print("Here were the bets that you lost: ")
+        print("Here were the bets that you lost: ") # Output losing bets
         self.printActiveBets()
 
         for bets in self.activeBets.keys():
-            self.activeBets[bets] = 0 # Reset bet amounts to 0
+            self.activeBets[bets] = 0 # Reset bet amounts to 0 after loss
         
-        print(f"{self.name}, your remaining bankroll is ${self.bankroll}")
-        self.betting_turn()
+        print(f"{self.name}, your remaining bankroll is ${self.bankroll}") # Output remaining bankroll after loss
+        self.betting_turn() # Ask user to place new bets
 
     #Process winning bets
     def Bet_winner(self, betType):
-        #TODO: Determine bet type and calculate winnings for wager
-        #TODO: Adjust bankroll with new winnings using 'Payout()' method
-        #TODO: Remove odds bets from active status and return to bankroll
-        #TODO: Print winning data
-        print(f"You won on {betType} with a bet of ${self.activeBets[betType]}")
+        print(f"You won on {betType} with a bet of ${self.activeBets[betType]}") # Output winning bet
 
         self.Payout(betType) # Evaluate winnings
         if self.activeBets["Odds Bet"] != 0: # Odds bet was placed
@@ -273,15 +264,17 @@ class Bets(Player):
         self.printActiveBets() # Print active bets
         print(f"Your current bankroll is now: ${self.bankroll}")
 
-        self.betting_turn()
+        self.betting_turn() # Ask player to place new bets for next round
         pass
 
     #Process Odds bets
     def Odds(self):
+        # Payout structure for odds bet
         oddsBetMultiples = {3:[4, 10], 
                             4:[5, 9],
                             5:[6, 8]}
-        if self.point and self.activeBets["Pass Line"] != 0:
+
+        if self.point and self.activeBets["Pass Line"] != 0: # Odds bet can be placed
             for multiple, point_val in oddsBetMultiples.items():
                 if self.point_value in point_val:
                     odds_multiple = multiple # Define odds bet multiple based on point value
@@ -294,12 +287,12 @@ class Bets(Player):
             # Place odds bet using defined values
             betLocation = "Odds Bet"
             self.activeBets[betLocation] = self.activeBets[betLocation] + self.ingestBet(betLocation) #Get bet amount
-            self.bankroll = self.bankroll - self.activeBets[betLocation]
+            self.bankroll = self.bankroll - self.activeBets[betLocation] # Adjust bankroll
             print(f"An odds bet of ${self.activeBets[betLocation]} was placed by {self.name}.")
-            self.printActiveBets()
-            self.betting_turn()
+            self.printActiveBets() # Output active bets
+            self.betting_turn() # Ask player if they wish to place more bets
                     
-        else:
+        else: # Odds bet cannot be placed
             if self.activeBets["Pass Line"] == 0:
                 print("A pass line bet has not been placed, so an odds bet cannot be made.")
             else:
@@ -317,12 +310,6 @@ class Bets(Player):
                       8 : 5/6} # Point value : payout odds
 
         print("PROCESSING PAYOUTS...")
-        # for betType, betAmount in self.activeBets.items():
-        #     if betAmount != 0: # Bet has been placed for this type
-        #         if betType != "Odds Bet": # 1:1 for non-odds bets
-        #             winnings += betAmount # Adjust winnings with bet amount
-        #         else: # Determine winnings for odds bets
-        #             winnings += betAmount + betAmount * oddsPayout[self.point_value] # Original + winnings
 
         betAmount = self.activeBets[betType]
         if betType != "Odds Bet": # 1:1 for non-odds bets
@@ -335,12 +322,7 @@ class Bets(Player):
         # print(f"\nYour total winnings for that round was ${winnings}!\n")
 
 
-player1 = Bets()
-print(f"{player1.name} has a bankroll of ${player1.bankroll}.")
-player1.betting_turn()
-print("\nThanks for playing!")
-
-# player1.point = True
-# player1.pass_line_bet(betAmount=input(f"{player1.name}, how much would you like to bet on the pass line?\nEnter a valid integer bet amount: "))
-# player1.point = False
-# player1.do_not_pass_bet(betAmount=input(f"{player1.name}, how much would you like to bet on the do not pass line?\nEnter a valid integer bet amount: "))
+player1 = Bets() # Create new instance of betting player
+print(f"{player1.name} has a bankroll of ${player1.bankroll}.") # Request player bankroll
+player1.betting_turn() # Ask player to begin betting
+print("\nThanks for playing!") # Exit message

@@ -1,4 +1,8 @@
 # MEMT680_Midterm
+Simulator requirements:
+1. Python 3.7 and up
+2. numpy 1.21 and up
+
 Game Procedure:
 1. To start the simulator, run CrapsSimulator.py
 2. Enter your name

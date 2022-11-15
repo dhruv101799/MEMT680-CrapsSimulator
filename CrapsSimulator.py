@@ -67,8 +67,8 @@ class Bets(Player):
                 # Request valid fund amount based on bankroll
                 betAmount = input(f"{self.name}, you have insufficient funds for a bet of ${betAmount}.\nYour bankroll is: ${self.bankroll}\nPlease enter a valid integer bet amount: ")
                 
-                while not checkInt(betAmount): #Repeatedly ask for bet amount until valid integer input is given
-                    betAmount = input("Enter a valid integer bet amount: ")
+                while not checkInt(betAmount) or int(betAmount) <= 0: #Repeatedly ask for bet amount until valid integer input is given
+                    betAmount = input("Enter a valid non-zero integer bet amount: ")
             else:
                 return int(betAmount) # Return verified bet amount
         
